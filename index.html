@@ -437,13 +437,20 @@ function pintarRadar(){
 }
 
 /* ---------- bucle de render ---------- */
+let tiempoAnterior = performance.now();
 function marco(){
   requestAnimationFrame(marco);
   if(!activado) return;
 
+  const ahora = performance.now();
+  const deltaMs = Math.min(ahora - tiempoAnterior, 33);
+  tiempoAnterior = ahora;
+  const dt = deltaMs / 16.67;  // normalizar a 60fps
+
   const objetivo = rumbo + arrastre;
-  rumboSuave += norm180(objetivo - rumboSuave) * 0.18;
-  cabeceoSuave += (cabeceo - cabeceoSuave) * 0.14;
+  const diferencia = norm180(objetivo - rumboSuave);
+  rumboSuave += diferencia * Math.min(0.28 * dt, 1);
+  cabeceoSuave += (cabeceo - cabeceoSuave) * Math.min(0.22 * dt, 1);
 
   const W = window.innerWidth, H = window.innerHeight;
   const pxPorGrado = (W/2) / MEDIO_FOV;
